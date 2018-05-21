@@ -63,14 +63,39 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     vgg_layer4_out = tf.stop_gradient(vgg_layer4_out);
     vgg_layer3_out = tf.stop_gradient(vgg_layer3_out);
 
-    layer_7_1x1 = tf.layers.conv2d(inputs = vgg_layer7_out, filters=num_classes, kernel_size=1, strides=(1,1), padding='SAME');
+    dec_layer_7_1x1 = tf.layers.conv2d(inputs = vgg_layer7_out, filters=num_classes, kernel_size=1,
+                  strides=(1,1), padding='SAME',name='dec_layer_7_1x1',
+                  kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),activation=tf.nn.relu);
 
-    # upsampling vgg_layer7 to 2x
-    # layer_7_out_2x = tf.layers.conv2d_transpose(layer_7_1x1,filters=num_classes, kernel_size=)
+    dec_layer7_1x1_2x = tf.layers.conv2d_transpose(dec_layer_7_1x1, filters=num_classes, kernel_size = 3,
+                                                          strides=(2, 2), padding='SAME', name='dec_layer_7_1x1_2x',
+                                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
+                                                          activation=tf.nn.relu);
 
+    dec_layer4_1x1_out = tf.layers.conv2d(vgg_layer4_out, filters=num_classes, kernel_size=1, strides=(1, 1),
+                                          name="dec_layer4_1x1_out", activation=tf.nn.relu,
+                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
 
-    # TODO: Implement function
-    return None
+    dec_layer_4_7_combined = tf.add(dec_layer7_1x1_2x, dec_layer4_1x1_out, name="dec_layer_4_7_combined");
+
+    dec_layer4_7_upsampled = tf.layers.conv2d_transpose(dec_layer_4_7_combined, filters=num_classes, kernel_size=3,
+                                                       strides=(2, 2), name="dec_layer4_7_upsampled", padding='SAME',
+                                                       kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
+                                                       activation=tf.nn.relu);
+
+    dec_layer3_1x1_out = tf.layers.conv2d(vgg_layer3_out, filters=num_classes, kernel_size=1, strides=(1, 1),
+                                      name="dec_layer3_1x1_out", kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
+                                          activation=tf.nn.relu);
+
+    output_layer_3_4_7_combined = tf.add(dec_layer3_1x1_out, dec_layer4_7_upsampled);
+
+    dec_final_layer_upsampled_8x = tf.layers.conv2d_transpose(output_layer_3_4_7_combined, filters=num_classes, kernel_size=16,
+                                                              strides=(8, 8), name="dec_final_layer_upsampled_8x",
+                                                              kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
+                                                              padding='SAME');
+
+    return dec_final_layer_upsampled_8x;
+
 tests.test_layers(layers)
 
 
