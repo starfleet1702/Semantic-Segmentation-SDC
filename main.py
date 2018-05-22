@@ -6,10 +6,10 @@ from distutils.version import LooseVersion
 import project_tests as tests
 
 is_in_training = True;
-KEEP_PROB = 0.5;
+KEEP_PROB = 0.7;
 LEARNING_RATE = 1e-4;
-EPOCHS = 2 ;
-BATCH_SIZE = 5 ;
+EPOCHS = 20;
+BATCH_SIZE = 5;
 
 
 # Check TensorFlow Version
