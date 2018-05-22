@@ -5,12 +5,16 @@ import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
 import argparse
+import util
 
 is_in_training = True;
-KEEP_PROB = 0.4;
-LEARNING_RATE = 5e-4;
-EPOCHS = 40;
-BATCH_SIZE = 5;
+use_pretrained_weights = False;
+train_only_decoder = False;
+
+KEEP_PROB = 0.6;
+LEARNING_RATE = 5e-5;
+EPOCHS = 15;
+BATCH_SIZE = 2;
 
 
 # Check TensorFlow Version
@@ -65,25 +69,26 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
+    
+    '''
     # stoping the gradient to back propogate from layer7
     vgg_layer7_out = tf.stop_gradient(vgg_layer7_out);
     vgg_layer4_out = tf.stop_gradient(vgg_layer4_out);
     vgg_layer3_out = tf.stop_gradient(vgg_layer3_out);
+    '''
 
     dec_layer_7_1x1 = tf.layers.conv2d(inputs = vgg_layer7_out, filters=num_classes, kernel_size=1,
                   strides=(1,1), padding='SAME',name='dec_layer_7_1x1',
                   kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
-                  kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3),
-                  activation=tf.nn.relu);
+                  kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3));
 
     dec_layer7_1x1_2x = tf.layers.conv2d_transpose(dec_layer_7_1x1, filters=num_classes, kernel_size = 4,
                                                           strides=(2, 2), padding='SAME', name='dec_layer_7_1x1_2x',
                                                           kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
-                                                          kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3),
-                                                          activation=tf.nn.relu);
+                                                          kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3));
 
     dec_layer4_1x1_out = tf.layers.conv2d(vgg_layer4_out, filters=num_classes, kernel_size=1, strides=(1, 1),
-                                          name="dec_layer4_1x1_out", activation=tf.nn.relu,
+                                          name="dec_layer4_1x1_out",
                                           kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
                                           kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3))
 
@@ -92,13 +97,11 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     dec_layer4_7_upsampled = tf.layers.conv2d_transpose(dec_layer_4_7_combined, filters=num_classes, kernel_size=4,
                                                        strides=(2, 2), name="dec_layer4_7_upsampled", padding='SAME',
                                                        kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
-                                                       kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3),
-                                                       activation=tf.nn.relu);
+                                                       kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3));
 
     dec_layer3_1x1_out = tf.layers.conv2d(vgg_layer3_out, filters=num_classes, kernel_size=1, strides=(1, 1),
                                       name="dec_layer3_1x1_out", kernel_initializer=tf.truncated_normal_initializer(stddev=0.01),
-                                      kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3),
-                                      activation=tf.nn.relu);
+                                      kernel_regularizer= tf.contrib.layers.l2_regularizer(1e-3));
 
     output_layer_3_4_7_combined = tf.add(dec_layer3_1x1_out, dec_layer4_7_upsampled,name='dec_output_layer_3_4_7_combined');
 
@@ -137,7 +140,7 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     opt  = tf.train.AdamOptimizer(learning_rate=learning_rate,name = 'dec_optimizer');
     # train_op = optimizer.minimize(cross_entropy_loss);
 
-    if is_in_training : 
+    if train_only_decoder: 
         trainables = []
         for variable in tf.trainable_variables():
             if 'dec_' in variable.name or 'beta' in variable.name:
@@ -148,7 +151,7 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
                 cross_entropy_loss, name="train_op");
     return logits, train_op, cross_entropy_loss;
 
-# tests.test_optimize(optimize)
+tests.test_optimize(optimize)
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
@@ -166,30 +169,41 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param keep_prob: TF Placeholder for dropout keep probability
     :param learning_rate: TF Placeholder for learning rate
     """
+    training_log = util.create_log();
+    #util.log_n_print(training_log,"BATCH_SIZE : "+BATCH_SIZE+" EPOCHS : "+EPOCHS+" LEARNING_RATE : "+LEARNING_RATE+" KEEP_PROB : "+KEEP_PROB+"\n");
+    util.log_n_print(training_log,"BATCH_SIZE : %d \nEPOCHS : %d \nLEARNING_RATE : %f \nKEEP_PROB : %f \n" % (BATCH_SIZE, EPOCHS, LEARNING_RATE, KEEP_PROB));
     # DONE: Implement function
     min_loss = 1e7;
     # saver = tf.train.Saver();
     best_model_path = None;
     loss_history = [];
+    loss = 1;
+    if(not util.can_continue()):
+              util.log_n_print(training_log,"####### Training will be Force stopped after 1 Epoch #######");
     if is_in_training:
-        print("Training started....");
+        util.log_n_print(training_log,"Training started....");
         for epoch in range(epochs):
             avg_loss = 0.0;
-            num_batches = 0;
-            print("EPOCH : ",epoch+1);
+            total_images = 0;
+            util.log_n_print(training_log,"EPOCH : %d" %(epoch+1));
             for image,label in get_batches_fn(batch_size):
                 _, loss = sess.run([train_op,cross_entropy_loss],feed_dict = {input_image : image , correct_label : label , keep_prob : KEEP_PROB, learning_rate : LEARNING_RATE});
-                avg_loss = avg_loss + loss;
-                num_batches+=1;
-            avg_loss/=num_batches;
+                avg_loss += (loss*image.shape[0]);
+                total_images += image.shape[0];
+                if(total_images%70==0):
+                  util.log_n_print(training_log,"EPOCH : %d  Images processed : %d " % (epoch+1,total_images));
+            avg_loss/=total_images;
             loss_history.append(avg_loss);
+            if(not util.can_continue()):
+              util.log_n_print(training_log,"Forced stopped after epoch : %d" % epoch);
+              break;
   
-            print("Loss : = {:.3f}".format(avg_loss));
+            util.log_n_print(training_log,"Loss : = {:.3f}".format(avg_loss));
             # saving best model as checkpoint
             # if (loss < min_loss):
             #     best_model_path =  saver.save(sess,"/checkpoints/best_model.ckpt");
             #     min_loss = loss;
-        print('loss_history : ' , loss_history);
+        util.log_n_print(training_log,'loss_history : '+str(loss_history));
     return best_model_path;
 
 tests.test_train_nn(train_nn)
@@ -198,6 +212,8 @@ tests.test_train_nn(train_nn)
 def run():
     
     global is_in_training;
+    global use_pretrained_weights;
+    global train_only_decoder;
     global KEEP_PROB;
     global LEARNING_RATE;
     global EPOCHS;
@@ -236,7 +252,7 @@ def run():
         
         logits, train_op, cross_entropy_loss = optimize(nn_last_layer,correct_label,LEARNING_RATE,num_classes);
 
-        if is_in_training:
+        if use_pretrained_weights:
             variable_initializers = [
                     var.initializer for var in tf.global_variables() if 'dec_' in var.name or
                     'beta' in var.name

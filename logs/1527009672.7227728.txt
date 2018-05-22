@@ -1,0 +1,97 @@
+BATCH_SIZE : 2 
+EPOCHS : 15 
+LEARNING_RATE : 0.000050 
+KEEP_PROB : 0.600000 
+
+Training started....
+EPOCH : 1
+EPOCH : 1  Images processed : 70 
+EPOCH : 1  Images processed : 140 
+EPOCH : 1  Images processed : 210 
+EPOCH : 1  Images processed : 280 
+Loss : = 0.462
+EPOCH : 2
+EPOCH : 2  Images processed : 70 
+EPOCH : 2  Images processed : 140 
+EPOCH : 2  Images processed : 210 
+EPOCH : 2  Images processed : 280 
+Loss : = 0.137
+EPOCH : 3
+EPOCH : 3  Images processed : 70 
+EPOCH : 3  Images processed : 140 
+EPOCH : 3  Images processed : 210 
+EPOCH : 3  Images processed : 280 
+Loss : = 0.107
+EPOCH : 4
+EPOCH : 4  Images processed : 70 
+EPOCH : 4  Images processed : 140 
+EPOCH : 4  Images processed : 210 
+EPOCH : 4  Images processed : 280 
+Loss : = 0.084
+EPOCH : 5
+EPOCH : 5  Images processed : 70 
+EPOCH : 5  Images processed : 140 
+EPOCH : 5  Images processed : 210 
+EPOCH : 5  Images processed : 280 
+Loss : = 0.077
+EPOCH : 6
+EPOCH : 6  Images processed : 70 
+EPOCH : 6  Images processed : 140 
+EPOCH : 6  Images processed : 210 
+EPOCH : 6  Images processed : 280 
+Loss : = 0.068
+EPOCH : 7
+EPOCH : 7  Images processed : 70 
+EPOCH : 7  Images processed : 140 
+EPOCH : 7  Images processed : 210 
+EPOCH : 7  Images processed : 280 
+Loss : = 0.055
+EPOCH : 8
+EPOCH : 8  Images processed : 70 
+EPOCH : 8  Images processed : 140 
+EPOCH : 8  Images processed : 210 
+EPOCH : 8  Images processed : 280 
+Loss : = 0.053
+EPOCH : 9
+EPOCH : 9  Images processed : 70 
+EPOCH : 9  Images processed : 140 
+EPOCH : 9  Images processed : 210 
+EPOCH : 9  Images processed : 280 
+Loss : = 0.049
+EPOCH : 10
+EPOCH : 10  Images processed : 70 
+EPOCH : 10  Images processed : 140 
+EPOCH : 10  Images processed : 210 
+EPOCH : 10  Images processed : 280 
+Loss : = 0.044
+EPOCH : 11
+EPOCH : 11  Images processed : 70 
+EPOCH : 11  Images processed : 140 
+EPOCH : 11  Images processed : 210 
+EPOCH : 11  Images processed : 280 
+Loss : = 0.043
+EPOCH : 12
+EPOCH : 12  Images processed : 70 
+EPOCH : 12  Images processed : 140 
+EPOCH : 12  Images processed : 210 
+EPOCH : 12  Images processed : 280 
+Loss : = 0.039
+EPOCH : 13
+EPOCH : 13  Images processed : 70 
+EPOCH : 13  Images processed : 140 
+EPOCH : 13  Images processed : 210 
+EPOCH : 13  Images processed : 280 
+Loss : = 0.038
+EPOCH : 14
+EPOCH : 14  Images processed : 70 
+EPOCH : 14  Images processed : 140 
+EPOCH : 14  Images processed : 210 
+EPOCH : 14  Images processed : 280 
+Loss : = 0.037
+EPOCH : 15
+EPOCH : 15  Images processed : 70 
+EPOCH : 15  Images processed : 140 
+EPOCH : 15  Images processed : 210 
+EPOCH : 15  Images processed : 280 
+Loss : = 0.035
+loss_history : [0.46159670816470183, 0.13730520644196176, 0.10660883712108572, 0.084425478142438046, 0.076864214491576058, 0.068185084973136453, 0.055428685807336162, 0.052766332815314246, 0.049306131151720729, 0.043979467044239641, 0.04262425198790111, 0.039374798278495104, 0.03768810016911954, 0.037169860018526804, 0.03497285738097549]
