@@ -4,7 +4,7 @@ In this project, you'll label the pixels of a road in images using a Fully Convo
 
 ##Result
 
-###Hyper Parameters
+### Hyper Parameters
 
 Following are the hyperparamters which yield best results:
 
@@ -15,7 +15,7 @@ LEARNING_RATE : 0.000050
 KEEP_PROB : 0.600000 
 `
 
-###Loss Curve
+### Loss Curve
 
 Loss Curve for the same is shown below :
 ![](Loss_curve.png)
@@ -23,10 +23,10 @@ Loss Curve for the same is shown below :
 it is having minimum loss of 0.03497.
 
 
-###Training logs
+### Training logs
 full logged details of the training can be found in log folder [click here](logs/1527009672.7227728.txt)
 
-###Output Images
+### Output Images
 ![](Sample_output_images/um_000016.png)
 ![](Sample_output_images/umm_000035.png)
 ![](Sample_output_images/umm_000077.png)
