@@ -4,11 +4,12 @@ import helper
 import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
+import argparse
 
 is_in_training = True;
-KEEP_PROB = 0.7;
-LEARNING_RATE = 1e-4;
-EPOCHS = 20;
+KEEP_PROB = 0.4;
+LEARNING_RATE = 5e-4;
+EPOCHS = 40;
 BATCH_SIZE = 5;
 
 
@@ -169,17 +170,26 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     min_loss = 1e7;
     # saver = tf.train.Saver();
     best_model_path = None;
+    loss_history = [];
     if is_in_training:
         print("Training started....");
         for epoch in range(epochs):
+            avg_loss = 0.0;
+            num_batches = 0;
             print("EPOCH : ",epoch+1);
             for image,label in get_batches_fn(batch_size):
                 _, loss = sess.run([train_op,cross_entropy_loss],feed_dict = {input_image : image , correct_label : label , keep_prob : KEEP_PROB, learning_rate : LEARNING_RATE});
-            print("Loss : = {:.3f}".format(loss));
+                avg_loss = avg_loss + loss;
+                num_batches+=1;
+            avg_loss/=num_batches;
+            loss_history.append(avg_loss);
+  
+            print("Loss : = {:.3f}".format(avg_loss));
             # saving best model as checkpoint
             # if (loss < min_loss):
             #     best_model_path =  saver.save(sess,"/checkpoints/best_model.ckpt");
             #     min_loss = loss;
+        print('loss_history : ' , loss_history);
     return best_model_path;
 
 tests.test_train_nn(train_nn)
